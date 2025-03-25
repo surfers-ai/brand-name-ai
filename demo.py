@@ -116,16 +116,20 @@ with st.container():
         # 1) system 프롬프트
         system_prompt = """
 너는 브랜드 명을 잘 만드는 마케팅 전문가야. 유저가 주는 정보를 바탕으로 "핵심 키워드(Core Key-word) & 브랜드 네임 제안 보고서"를 작성해줘.
-인사는 하지 말고, 바로 Markdown 형식의 보고서를 작성해줘.
+인사는 하지 말고, 바로 Markdown 형식의 보고서를 작성해줘. 대신 ```같은 코드 블럭은 넣지 말아줘.
 
 <example_reference>
-<1. 아이템/서비스 써머리>
+<1. Item/Service Summary>
+# 1. Item/Service Summary
+
 '마스크팩' 키워드는 국내 포털 사이트 기준, 2018년 ~ 2024년 검색량은 하향되었지만, 새로운 브랜드와 제품이 지속적으로 출시되며 그 성분과 차별성이 다양해지고 있습니다. PC보다는 모바일 검색량이 약 7배 정도 높으며 연관 검색 되는 키워드도 다양하게 보여지고 있습니다. 검색량의 성비는 여자가 남자보다 약 3배 정도 높게 나타나고 사용 후기에 대한 관심이 크지만 체험단을 통한 블로그도 다수 발견됩니다. 최근에는 마스크팩의 성분 중 콜라겐 성분, 400달톤, 197달톤 성분 제품이 인기를 끌고 있으며, 상위 노출 브랜드로는 (조여정의 마스크팩), (GNC팩)이 있습니다. 마스크팩과 더불어 (미스트), (알로에)를 함께 검색한 이력도 볼 수 있습니다. 국외 포털 사이트 기준, 2014년 ~ 2021년 검색량 대비 2021년 ~ 2024년 검색량이 현저히 줄어든 특징을 보입니다. 마스크팩 키워드는....
 마스크팩 브랜드 사업자가 줄어들고 있으며 소상공인 규모 사업자 보다는 중소/중견 기업의 사업자 수가 높아졌습니다.
-</1. 아이템/서비스 써머리>
+</1. Item/Service Summary>
 
-<2. 핵심 키워드 써머리>
-핵심 키워드 : 국내산 콜라겐 / 콜라겐 58 / 197달톤
+<2. Core Keyword Summary>
+# 2. Core Keyword Summary
+
+Core Keyword : 국내산 콜라겐 / 콜라겐 58 / 197달톤
 1. 국내산 콜라겐
 - 국내산 돼지 표피의 젤라틴 추출 콜라겐으로 만든 콜라겐 마스크팩은 유일하며, 1960년대 이후 연구 개발이 활발한 산미산업의 젤라틴 성분을 활용한 제품으로 신뢰도가 높으며 기술력이 높을 것으로 예상됩니다.
 
@@ -134,9 +138,11 @@ with st.container():
 
 3. 197달톤
 - 현재 상위 노출 중인 (조여정 마스크팩)이 197 달톤을 핵심 키워드로 활용하고 있으며, 광고 키 카피에도 사용하고 있으므로, 197 달톤 기술력을 표현하는  키워드는 마케팅적으로 도움이 큰 키워드입니다.
-</2. 핵심 키워드 써머리>
+</2. Core Keyword Summary>
 
 <3. Core Keyword Naming Chart>
+# 3. Core Keyword Naming Chart
+
 분석된 핵심 키워드들을 서비스 키워드와 핵심 키워드로 분류하여 혼합형 브랜드 네임을 제안합니다.
 제안된 혼합형 브랜드 네임은 시장에서의 연상성을 높이는 카피라이팅과 함께 제안됩니다.
 
@@ -152,7 +158,7 @@ K | K 마스크팩 | K 페이스 | K 팩 | K 마스크
 400달톤 | 400달톤 마스크팩 | 400달톤 페이스 | 400달톤 팩 | 400달톤 마스크
 돈피 | 돈피 마스크팩 | 돈피 페이스 | 돈피 팩 | 돈피 마스크
 오팔 | 오팔 마스크팩 | 오팔 페이스 | 오팔 팩 | 마스크 오팔
-케이 |  케이 마스크팩 | 페이스케이 | 케이 팩 | 마스크 케이
+케이 | 케이 마스크팩 | 페이스케이 | 케이 팩 | 마스크 케이
 </표1>
 
 <표2_2core + 1service>
@@ -162,6 +168,8 @@ K | K 마스크팩 | K 페이스 | K 팩 | K 마스크
 </3. Core Keyword Naming Chart>
 
 <4. Proposal 'Core Keyword Mixed, Brand Name'>
+# 4. Proposal 'Core Keyword Mixed, Brand Name'
+
 1. 오팔 마스크팩 - 키워드 : 국내산 콜라겐 / 콜라겐 58 / 197 달톤
 국내산 돼지 포피의 젤라틴 추출 콜라겐으로 만든 콜라겐 마스크 팩은 유일하며, 1960년대 이후 연구 개발이 활발한 산미산업의 젤라틴 성분을 활용한 제품으로 신뢰도가 높으며 기술력이 높을 것으로 예상됩니다.
 (...)
@@ -228,7 +236,7 @@ K | K 마스크팩 | K 페이스 | K 팩 | K 마스크
         report_placeholder = st.empty()
 
         # 스트리밍 받아서 점진적으로 표시할 텍스트 누적
-        generated_report = ""
+        generated_report = "\n\n"
 
         for chunk in response:
             # chunk 중 실제 응답 부분만 추출
@@ -238,18 +246,20 @@ K | K 마스크팩 | K 페이스 | K 팩 | K 마스크
                 # 1) 누적
                 generated_report += chunk_content
 
-                # 2) 문자열 처리
-                generated_report = generated_report.replace("markdown", "")
-                generated_report = generated_report.replace("```", "")
+                # 2) 문자열 처리 - 줄바꿈 기호가 있을 때만 업데이트
+                if '\n' in chunk_content:
+                    # 3) 스트리밍 중간 상태 갱신
+                    report_placeholder.markdown(
+                        f"<div style='background-color:#fff; padding:1rem; border-radius:8px;'>"
+                        f"{generated_report}"
+                        f"</div>",
+                        unsafe_allow_html=True
+                    )
 
-                # 3) 스트리밍 중간 상태 갱신
-                report_placeholder.markdown(
-                    f"<div style='background-color:#fff; padding:1rem; border-radius:8px;'>"
-                    f"{generated_report}"
-                    f"</div>",
-                    unsafe_allow_html=True
-                )
             time.sleep(0.01)
+
+        print(generated_report)
+
 
         st.success("브랜드 네임 제안 보고서가 완성되었습니다!")
         st.info("※ 본 예시는 PoC 데모 용도이며, 실제 상표권 침해 여부 등은 별도로 검토가 필요합니다.")

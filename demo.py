@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+import time
 
 # .env 파일에 OPENAI_API_KEY=<YOUR_API_KEY> 형태로 키가 저장되어 있어야 합니다.
 load_dotenv()
@@ -112,10 +113,10 @@ with st.container():
 # 4) 제출 시 GPT에게 질의
 # ----------------------------
     if submitted:
-        # system 프롬프트 (예시)
+        # 1) system 프롬프트
         system_prompt = """
 너는 브랜드 명을 잘 만드는 마케팅 전문가야. 유저가 주는 정보를 바탕으로 "핵심 키워드(Core Key-word) & 브랜드 네임 제안 보고서"를 작성해줘.
-Markdown 형식으로 작성해줘.
+인사는 하지 말고, 바로 Markdown 형식의 보고서를 작성해줘.
 
 <example_reference>
 <1. 아이템/서비스 써머리>
@@ -164,72 +165,91 @@ K | K 마스크팩 | K 페이스 | K 팩 | K 마스크
 1. 오팔 마스크팩 - 키워드 : 국내산 콜라겐 / 콜라겐 58 / 197 달톤
 국내산 돼지 포피의 젤라틴 추출 콜라겐으로 만든 콜라겐 마스크 팩은 유일하며, 1960년대 이후 연구 개발이 활발한 산미산업의 젤라틴 성분을 활용한 제품으로 신뢰도가 높으며 기술력이 높을 것으로 예상됩니다.
 (...)
+
 </4. Proposal 'Core Keyword Mixed, Brand Name'>
-</example_reference>"""
+</example_reference>
+"""
 
-        # user 프롬프트 (사용자 입력 통합)
+        # 2) user 프롬프트 (사용자 입력 내용 구성)
         user_prompt = f"""
-            [아이템 / 서비스 종류]
-            {item_service}
+[아이템 / 서비스 종류]
+{item_service}
 
-            [서비스의 업태와 종목]
-            {service_type}
+[서비스의 업태와 종목]
+{service_type}
 
-            [경쟁사 브랜드]
-            {competitor}
+[경쟁사 브랜드]
+{competitor}
 
-            [핵심 기술]
-            {core_tech}
+[핵심 기술]
+{core_tech}
 
-            [핵심 가치]
-            {core_value}
+[핵심 가치]
+{core_value}
 
-            [주 고객층]
-            {main_customers}
+[주 고객층]
+{main_customers}
 
-            [판매 채널]
-            {sale_channel}
+[판매 채널]
+{sale_channel}
 
-            [광고 / 홍보 채널]
-            {ad_channel}
+[광고 / 홍보 채널]
+{ad_channel}
 
-            [슬로건 / 광고 카피]
-            {slogan}
+[슬로건 / 광고 카피]
+{slogan}
 
-            [판매 가격]
-            {price}
+[판매 가격]
+{price}
 
-            [브랜드에 대한 소개 자유 기재]
-            {free_intro}
-            """
-
-        with st.spinner("브랜드 네임 제안 보고서를 생성하고 있습니다... 잠시만 기다려주세요."):
-            response = client.chat.completions.create(
-                model="o3-mini",  # 실제 사용 모델 명칭에 맞춰 조정
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ]
-            )
-
-            response_content = response.choices[0].message.content
-            # 마크다운 형식 제거
-            response_content = response_content.strip()
-            if response_content.startswith("```markdown"):
-                response_content = response_content[len("```markdown"):].strip()
-            if response_content.endswith("```"):
-                response_content = response_content[:-3].strip()
+[브랜드에 대한 소개 자유 기재]
+{free_intro}
+"""
 
         # ----------------------------
-        # 5) 결과 출력
+        # 5) GPT 스트리밍 응답 처리
         # ----------------------------
-        st.success("브랜드 네임 제안 보고서가 생성되었습니다!")
-        
-        # 보고서 형태를 감싸는 컨테이너(카드) 스타일
-        with st.container():
-            st.markdown("<div class='report-container'>", unsafe_allow_html=True)
-            st.markdown("#### **생성된 보고서**")
-            st.markdown(response_content)
-            st.markdown("</div>", unsafe_allow_html=True)
-        
+        st.write("---")
+        st.info("**브랜드 네임 제안 보고서를 생성하고 있습니다...** 잠시만 기다려주세요.")
+
+        # GPT에게 streaming 모드로 요청
+        response = client.chat.completions.create(
+            model="o3-mini",  # 실제 사용 모델에 맞춰 조정
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            stream=True  # <- 스트리밍 활성화
+        )
+
+        st.markdown("#### **생성된 보고서**")
+
+        # 실시간 표시를 위한 placeholder
+        report_placeholder = st.empty()
+
+        # 스트리밍 받아서 점진적으로 표시할 텍스트 누적
+        generated_report = ""
+
+        for chunk in response:
+            # chunk 중 실제 응답 부분만 추출
+            chunk_content = chunk.choices[0].delta.content
+
+            if chunk_content:
+                # 1) 누적
+                generated_report += chunk_content
+
+                # 2) 문자열 처리
+                generated_report = generated_report.replace("markdown", "")
+                generated_report = generated_report.replace("```", "")
+
+                # 3) 스트리밍 중간 상태 갱신
+                report_placeholder.markdown(
+                    f"<div style='background-color:#fff; padding:1rem; border-radius:8px;'>"
+                    f"{generated_report}"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+            time.sleep(0.01)
+
+        st.success("브랜드 네임 제안 보고서가 완성되었습니다!")
         st.info("※ 본 예시는 PoC 데모 용도이며, 실제 상표권 침해 여부 등은 별도로 검토가 필요합니다.")

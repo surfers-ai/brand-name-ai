@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "brand-name-ai"
+version = "0.1.0"
+description = ""
+authors = ["jiwoochris <travelandi01@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.13"
+streamlit = "^1.41.1"
+openai = "^1.60.2"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
